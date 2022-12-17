@@ -5,9 +5,9 @@ import numpy as np
 import gym_new_classic_envs.envs.mass.mass_resources.massParam as P
 from gym_new_classic_envs.envs.mass.mass_resources.massDynamics import massDynamics
 from gym_new_classic_envs.envs.mass.mass_controllers.massController import massController
-from gym_new_classic_envs.envs.mass.mass_resources.signalGenerator import signalGenerator
+from gym_new_classic_envs.utils.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.mass.mass_resources.massAnimation import massAnimation
-from gym_new_classic_envs.envs.mass.mass_resources.dataPlotter import dataPlotter
+from gym_new_classic_envs.envs.mass.mass_resources.massDataPlotter import dataPlotter
 
 # instantiate satellite, controller, and reference classes
 mass = massDynamics()

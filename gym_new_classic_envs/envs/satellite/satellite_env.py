@@ -20,7 +20,7 @@ import gym_new_classic_envs.envs.mass.mass_resources.massParam as P
 
 RUN_CUSTOM_DYN = False
 
-class MassEnv(gym.Env):
+class SatelliteEnv(gym.Env):
     metadata = {'render.modes': ['human'], "video.frames_per_second": 30}
 
     def __init__(self, target=0.0):

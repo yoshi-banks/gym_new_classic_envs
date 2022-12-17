@@ -5,7 +5,7 @@ sys.path.append('..')  # add parent directory
 import gym_new_classic_envs.envs.mass.mass_resources.massParam as P
 from gym_new_classic_envs.envs.mass.mass_resources.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.mass.mass_resources.massAnimation import massAnimation
-from gym_new_classic_envs.envs.mass.mass_resources.dataPlotter import dataPlotter
+from gym_new_classic_envs.envs.mass.mass_resources.massDataPlotter import dataPlotter
 
 # instantiate reference input classes
 reference = signalGenerator(amplitude=.5, frequency=0.1)

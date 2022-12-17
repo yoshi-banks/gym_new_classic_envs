@@ -1,21 +1,21 @@
 import matplotlib.pyplot as plt
+import os
 import sys
-# sys.path.append('..')  # add parent directory
-
-import gym_new_classic_envs.envs.mass.mass_resources.massParam as P
-from gym_new_classic_envs.envs.mass.mass_resources.signalGenerator import signalGenerator
-from gym_new_classic_envs.envs.mass.mass_resources.massAnimation import massAnimation
-from gym_new_classic_envs.envs.mass.mass_resources.massDataPlotter import dataPlotter
-from gym_new_classic_envs.envs.mass.mass_resources.massDynamics import massDynamics
+sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # add parent directory
+import gym_new_classic_envs.envs.ballbeam.ballbeam_resources.ballbeamParam as P
+from gym_new_classic_envs.utils.signalGenerator import signalGenerator
+from gym_new_classic_envs.envs.ballbeam.ballbeam_resources.ballbeamAnimation import ballbeamAnimation
+from gym_new_classic_envs.envs.ballbeam.ballbeam_resources.ballbeamDataPlotter import dataPlotter
+from gym_new_classic_envs.envs.ballbeam.ballbeam_resources.ballbeamDynamics import ballbeamDynamics
 
 # instantiate satellite, controller, and reference classes
-mass = massDynamics()
+mass = ballbeamDynamics()
 reference = signalGenerator(amplitude=0.5, frequency=0.1)
-force = signalGenerator(amplitude=20., frequency=0.1)
+force = signalGenerator(amplitude=30.0, frequency=0.1)
 
 # instantiate the simulation plots and animation
 dataPlot = dataPlotter()
-animation = massAnimation()
+animation = ballbeamAnimation()
 
 t = P.t_start  # time starts at t_start
 while t < P.t_end:  # main simulation loop
@@ -27,7 +27,7 @@ while t < P.t_end:  # main simulation loop
     while t < t_next_plot:
         r = reference.square(t)
         u = force.sin(t)
-        z = mass.update(u)  # Propagate the dynamics
+        y = mass.update(u)  # Propagate the dynamics
         t = t + P.Ts  # advance time by Ts
 
     # update animation and data plots

@@ -12,15 +12,14 @@ from os import path
 
 import matplotlib.pyplot as plt
 
-from gym_new_classic_envs.envs.mass.mass_resources.massDynamics import massDynamics
+from gym_new_classic_envs.envs.arm.arm_resources.armDynamics import armDynamics
 from gym_new_classic_envs.utils.signalGenerator import signalGenerator
-from gym_new_classic_envs.envs.mass.mass_resources.massDataPlotter import dataPlotter
-from gym_new_classic_envs.envs.mass.mass_resources.massAnimation import massAnimation
-import gym_new_classic_envs.envs.mass.mass_resources.massParam as P
+import gym_new_classic_envs.envs.arm.arm_resources.armParam as P
 
-RUN_CUSTOM_DYN = False
+RUN_CUSTOM_DYN = True
+WATCH_THETA = False
 
-class MassEnv(gym.Env):
+class BallbeamEnv(gym.Env):
     metadata = {'render.modes': ['human'], "video.frames_per_second": 30}
 
     def __init__(self, target=0.0):
@@ -31,7 +30,7 @@ class MassEnv(gym.Env):
         self.state = np.array([P.theta0, P.thetadot0])
 
         # Arm Dynamics is uploading dynamic parameters from armParam.py
-        self.arm = massDynamics()
+        self.arm = armDynamics()
         self.reference = signalGenerator(amplitude=0.0, frequency=0.1)
 
         # Intialize parameters
@@ -46,22 +45,25 @@ class MassEnv(gym.Env):
         )
 
         # Initialize observation space
+        # Watch theta and thetadot
         # TODO tie these into the params.py file
-        theta_max = 2*np.pi
-        theta_min = 0
+        if WATCH_THETA is True:
+            theta_max = 2*np.pi
+            theta_min = 0
 
-        high_observation = np.array([theta_max, -self.max_speed], dtype=np.float32)
-        low_observation = np.array([theta_min, self.max_speed], dtype=np.float32)
-        self.observation_space = spaces.Box(
-            low=low_observation, high=high_observation, dtype=np.float32
-        )
+            high_observation = np.array([theta_max, -self.max_speed], dtype=np.float32)
+            low_observation = np.array([theta_min, self.max_speed], dtype=np.float32)
+            self.observation_space = spaces.Box(
+                low=low_observation, high=high_observation, dtype=np.float32
+            )
+        else:
+            # or watch the position of the end of the pendulum
+            high = np.array([1, 1, self.max_speed], dtype=np.float32)
+            self.observation_space = spaces.Box(low=-high, high=high, dtype=np.float32)
 
         # Initialize visualization tools
-        # self.viewer = None
         self.animation = None
         self.dataPlot = None
-        # self.dataPlot = dataPlotter()
-        # self.animation = armAnimation()
 
         # Initialize seed
         self.seed()
@@ -81,7 +83,6 @@ class MassEnv(gym.Env):
         # costs = (theta - self.target)**2 + 0.1 * thetadot ** 2 + 0.001 * (u ** 2)
         costs = (angle_normalize(theta) - self.target) ** 2 + 0.1 * thetadot ** 2 + 0.001 * (u ** 2)
         # costs = (angle_normalize(theta) - self.target) ** 2
-
         # costs = (theta - np.pi/4)**2
 
         # Propagate dynamics in between plot samples
@@ -105,10 +106,14 @@ class MassEnv(gym.Env):
         return self._get_obs()
 
     def _get_obs(self):
-        return np.array([
-            self.state.item(0),
-            self.state.item(1)
-        ], dtype=np.float32)
+        if WATCH_THETA is True:
+            return np.array([
+                self.state.item(0),
+                self.state.item(1)
+            ], dtype=np.float32)
+        else:
+            theta, thetadot = self.state
+            return np.array([np.cos(theta), np.sin(theta), thetadot], dtype=np.float32)
 
     def _run_dynamics(self, u):
         if RUN_CUSTOM_DYN is False:
@@ -139,7 +144,8 @@ class MassEnv(gym.Env):
 
             self.animation = armAnimation()
         else:
-            # self.animation.update(self.arm.state)
+            # HACK
+            # self.state = np.array([np.pi, 0.0])
             self.animation.update(self.state)
 
             # the pause causes the figure to be displayed during the
@@ -150,8 +156,9 @@ class MassEnv(gym.Env):
             from gym_new_classic_envs.envs.arm.arm_resources.armDataPlotter import dataPlotter
             self.dataPlot = dataPlotter()
         else:
-            self.dataPlot.update(self.t, self.ref, self.arm.state, self.last_u)
-            self.dataPlot.update(self.t, self.ref, self.arm.state, self.last_u)
+            # print(self.state.item(0))
+            self.dataPlot.update(self.t, self.target, self.state, self.last_u)
+            # self.dataPlot.update(self.t, self.ref, self.arm.state, self.last_u)
 
             # the pause causes the figure to be displayed during the
             # simulation
