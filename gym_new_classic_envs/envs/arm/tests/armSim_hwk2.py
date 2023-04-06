@@ -5,12 +5,10 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # add parent directory
 
-print(sys.path)
-
-import arm_resources.armParam as P
-from arm_resources.signalGenerator import signalGenerator
-from arm_resources.armAnimation import armAnimation
-from arm_resources.armDataPlotter import dataPlotter
+import gym_new_classic_envs.envs.arm.arm_resources.armParam as P
+from gym_new_classic_envs.utils.signalGenerator import signalGenerator
+from gym_new_classic_envs.envs.arm.arm_resources.armAnimation import armAnimation
+from gym_new_classic_envs.envs.arm.arm_resources.armDataPlotter import dataPlotter
 
 # instantiate reference input classes
 reference = signalGenerator(amplitude=0.5, frequency=0.1)

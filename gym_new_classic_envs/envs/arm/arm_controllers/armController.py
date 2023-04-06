@@ -1,5 +1,5 @@
 import numpy as np
-import gym_new_classic_envs.envs.arm.arm_resources.armParamHW7 as P
+import gym_new_classic_envs.envs.arm.arm_controllers.armParamHW7 as P
 import sys
 sys.path.append('..')  # add parent directory
 import gym_new_classic_envs.envs.arm.arm_resources.armParam as P0
