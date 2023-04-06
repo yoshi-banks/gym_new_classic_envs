@@ -7,7 +7,6 @@ sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # add parent direct
 
 print(sys.path)
 
-import arm_resources.
 import arm_resources.armParam as P
 from arm_resources.signalGenerator import signalGenerator
 from arm_resources.armAnimation import armAnimation
