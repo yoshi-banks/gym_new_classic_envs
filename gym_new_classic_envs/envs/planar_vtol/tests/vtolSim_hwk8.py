@@ -3,9 +3,9 @@ import sys
 
 import numpy as np
 
-import os
-import sys
-sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # add parent directory
+# import os
+# import sys
+# sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # add parent directory
 import gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLParam as P
 from gym_new_classic_envs.utils.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLAnimation import VTOLAnimation

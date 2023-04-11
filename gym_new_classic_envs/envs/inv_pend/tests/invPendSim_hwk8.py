@@ -6,7 +6,7 @@ from gym_new_classic_envs.envs.inv_pend.inv_pend_resources.invPendDynamics impor
 from gym_new_classic_envs.envs.inv_pend.inv_pend_controllers.invPendController import InvertedPendulumController
 from gym_new_classic_envs.utils.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.inv_pend.inv_pend_resources.invPendAnimation import InvertedPendulumAnimation
-from gym_new_classic_envs.utils.dataPlotter import dataPlotter
+from gym_new_classic_envs.envs.inv_pend.inv_pend_resources.invPendDataPlotter import dataPlotter
 
 # instantiate pendulum, controller, and reference classes
 pendulum = InvertedPendulumDynamics()

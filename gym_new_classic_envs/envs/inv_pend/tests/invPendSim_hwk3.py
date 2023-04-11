@@ -4,7 +4,7 @@ sys.path.append('..')  # add parent directory
 import gym_new_classic_envs.envs.inv_pend.inv_pend_resources.invPendParam as P
 from gym_new_classic_envs.utils.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.inv_pend.inv_pend_resources.invPendAnimation import InvertedPendulumAnimation
-from gym_new_classic_envs.utils.dataPlotter import dataPlotter
+from gym_new_classic_envs.envs.inv_pend.inv_pend_resources.invPendDataPlotter import dataPlotter
 from gym_new_classic_envs.envs.inv_pend.inv_pend_resources.invPendDynamics import InvertedPendulumDynamics
 
 # instantiate pendulum, controller, and reference classes
