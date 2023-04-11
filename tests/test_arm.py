@@ -2,7 +2,8 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # add parent directory
 
-import gym
+# import gym
+import gymnasium as gym
 import gym_new_classic_envs
 
 import numpy as np
@@ -22,6 +23,7 @@ env = TimeLimit(env, max_episode_steps=200)
 create_new = False
 
 if create_new:
+    print('creating new model...')
     # Instantiate the agent
     model = PPO(
         "MlpPolicy",
@@ -35,14 +37,15 @@ if create_new:
     )
     model.learn(total_timesteps=1)
 else:
+    print('loading model...')
     model = PPO.load("/tmp/gym/ppo_arm_0_2e5")
 
 
 
-# mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=10)
-# print(f"mean_reward:{mean_reward:.2f} +/- {std_reward:.2f}")
+mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=10)
+print(f"mean_reward:{mean_reward:.2f} +/- {std_reward:.2f}")
 
-record_matplotlib_video(env_id, model, target=target, video_length=1000, prefix='ppo-arm', video_folder='videos/')
+# record_matplotlib_video(env_id, model, target=target, video_length=1000, prefix='ppo-arm', video_folder='videos/')
 exit()
 
 model.learn(total_timesteps=int(2e5))
