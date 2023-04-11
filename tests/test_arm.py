@@ -1,7 +1,3 @@
-import os
-import sys
-sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # add parent directory
-
 # import gym
 import gymnasium as gym
 import gym_new_classic_envs

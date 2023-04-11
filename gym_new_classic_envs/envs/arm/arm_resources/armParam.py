@@ -24,13 +24,15 @@ thetadot0 = 0.0         # ,rads/s
 t_start = 0.0  # Start time of simulation
 t_end = 50.0  # End time of simulation
 Ts = 0.005  # sample time for simulation
-t_plot = 0.066  # the plotting and animation is updated at this rate
+# t_plot = 0.066  # the plotting and animation is updated at this rate
+t_plot = 0.2
 
 # dirty derivative parameters
 sigma = 0.05  # cutoff freq for dirty derivative
 beta = (2.0*sigma-Ts)/(2.0*sigma+Ts)  # dirty derivative gain
 
 # saturation limits
-tau_max = 20.0                # Max torque, N-m
+# tau_max = 20.0                # Max torque, N-m
+tau_max = 5.0                # Max torque, N-m
 thetadot_max = 8.0           # max speed, rads/s
 

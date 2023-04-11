@@ -1,9 +1,5 @@
 import matplotlib.pyplot as plt
 
-import os
-import sys
-sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # add parent directory
-
 import gym_new_classic_envs.envs.arm.arm_resources.armParam as P
 from gym_new_classic_envs.utils.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.arm.arm_resources.armAnimation import armAnimation

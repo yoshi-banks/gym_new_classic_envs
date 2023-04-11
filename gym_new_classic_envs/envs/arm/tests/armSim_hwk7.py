@@ -1,9 +1,6 @@
-import os
-import sys
-sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # add parent directory
 import matplotlib.pyplot as plt
 import numpy as np
-\
+
 import gym_new_classic_envs.envs.arm.arm_resources.armParam as P
 from gym_new_classic_envs.envs.arm.arm_resources.armDynamics import armDynamics
 from gym_new_classic_envs.envs.arm.arm_controllers.armController import armController
@@ -34,6 +31,7 @@ while t < P.t_end:  # main simulation loop
         d = disturbance.step(t)  # input disturbance
         n = 0.0  #noise.random(t)  # simulate sensor noise
         x = arm.state
+        print('x:', x[0,0])
         u = controller.update(r, x)  # update controller
         y = arm.update(u + d)  # propagate system
         t = t + P.Ts  # advance time by Ts
