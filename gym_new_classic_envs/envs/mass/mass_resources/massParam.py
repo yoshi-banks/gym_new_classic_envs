@@ -19,8 +19,8 @@ zdot0 = 0.0 # initial velocity of mass m/s
 t_start = 0 # Start time of simulation
 t_end = 50.0  # End time of simulation
 Ts = .001  # sample time for simulation
-# t_plot = .066 # the plotting and animation is updated at this rate
-t_plot = 5.0
+t_plot = .066 # the plotting and animation is updated at this rate
+# t_plot = 5.0
 
 # dirty derivative parameters
 sigma = 0.05 # cutoff freq for dirty derivative
