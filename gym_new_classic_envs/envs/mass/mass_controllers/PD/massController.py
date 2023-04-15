@@ -1,5 +1,5 @@
 import numpy as np
-import gym_new_classic_envs.envs.mass.mass_controllers.massParamHW7 as P
+import gym_new_classic_envs.envs.mass.mass_controllers.PD.massParamHW7 as P
 import sys
 
 # sys.path.append('..')  # add parent directory

@@ -3,7 +3,7 @@ import os
 os.system("Xvfb :1 -screen 0 1024x768x24 &")
 os.environ['DISPLAY'] = ':1'
 
-import gym
+import gymnasium as gym
 import numpy as np
 from stable_baselines3.common.vec_env import VecVideoRecorder, DummyVecEnv
 
