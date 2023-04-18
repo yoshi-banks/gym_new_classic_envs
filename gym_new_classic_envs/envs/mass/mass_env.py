@@ -1,67 +1,59 @@
-import gym
-from gym import spaces
-from gym.utils import seeding
+import gymnasium as gym
+from gymnasium import spaces
+from gymnasium.utils import seeding
+from gymnasium.envs.classic_control import utils
 import numpy as np
-from os import path
-
-# import os
-# import sys
-# sys.path.append(os.path.join(sys.path[0], 'custom_arm'))  # add directory
-
-# print(sys.path)
-
 import matplotlib.pyplot as plt
+from typing import Optional, Tuple, Union
 
 from gym_new_classic_envs.envs.mass.mass_resources.massDynamics import massDynamics
 from gym_new_classic_envs.utils.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.mass.mass_resources.massDataPlotter import dataPlotter
 from gym_new_classic_envs.envs.mass.mass_resources.massAnimation import massAnimation
 import gym_new_classic_envs.envs.mass.mass_resources.massParam as P
-
-RUN_CUSTOM_DYN = False
+from gym_new_classic_envs.envs.mass.mass_controllers.PID.massController import massController
 
 class MassEnv(gym.Env):
-    metadata = {'render.modes': ['human'], "video.frames_per_second": 30}
+    metadata = {
+        'render_modes': ['human'],
+        'render_fps': 30,
+    }
 
-    def __init__(self, target=0.0):
-        # Set the target
-        self.target = target
+    def __init__(self, render_mode=None):
+        # print('Initializing...')
 
-        # Initialize state
-        self.state = np.array([P.theta0, P.thetadot0])
+        self.render_mode = render_mode
+        self.ref = 0.0
+        
+        # instantiate mass, controller, and reference classes
+        self.mass = massDynamics(alpha=0.0)
+        self.controller = massController() # testing controller
+        self.reference = signalGenerator(amplitude=0.5, frequency=0.03, y_offset=0.5)
+        self.disturbance = signalGenerator(amplitude=0.0)
+        self.noise = signalGenerator(amplitude=0.0)
 
-        # Arm Dynamics is uploading dynamic parameters from armParam.py
-        self.arm = massDynamics()
-        self.reference = signalGenerator(amplitude=0.0, frequency=0.1)
+        if render_mode is 'human':
+            # instantiate the simulation plots and animation
+            self.dataPlot = dataPlotter()
+            self.animation = massAnimation()
 
         # Intialize parameters
         self.t = P.t_start  # time starts at t_start # TODO this may mess things up
-        self.max_torque = P.tau_max
-        self.max_speed = P.thetadot_max
+        self.F_max = P.F_max
+        self.zdot_max = P.zdot_max
+        self.z_max = P.z_max
         self.dt = P.Ts
 
         # Initialize action space
         self.action_space = spaces.Box(
-            low=-self.max_torque, high=self.max_torque, shape=(1,), dtype=np.float32
+            low=-self.F_max, high=self.F_max, shape=(1,), dtype=np.float32
         )
 
-        # Initialize observation space
-        # TODO tie these into the params.py file
-        theta_max = 2*np.pi
-        theta_min = 0
-
-        high_observation = np.array([theta_max, -self.max_speed], dtype=np.float32)
-        low_observation = np.array([theta_min, self.max_speed], dtype=np.float32)
+        high_observation = np.array([self.z_max, self.z_max], dtype=np.float32)
+        low_observation = np.array([-self.z_max, -self.zdot_max], dtype=np.float32)
         self.observation_space = spaces.Box(
             low=low_observation, high=high_observation, dtype=np.float32
         )
-
-        # Initialize visualization tools
-        # self.viewer = None
-        self.animation = None
-        self.dataPlot = None
-        # self.dataPlot = dataPlotter()
-        # self.animation = armAnimation()
 
         # Initialize seed
         self.seed()
@@ -70,19 +62,36 @@ class MassEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def step(self, u):
-        self.ref = self.reference.step(self.t)
-        u = np.clip(u, -self.max_torque, self.max_torque)[0]
+    def step(self, action):
+        # print('Stepping...')
+        assert self.action_space.contains(
+            action
+        ), f"{action!r}({type(action)}) invalid"
+
+        u = action
+        # check that u is within bounds
+        u = np.clip(u, -self.F_max, self.F_max).item(0)
         self.last_u = u
         
-        # Work the magic by manipulating the cost function
-        theta = self.arm.state.item(0)
-        thetadot = self.arm.state.item(1)
-        # costs = (theta - self.target)**2 + 0.1 * thetadot ** 2 + 0.001 * (u ** 2)
-        costs = (angle_normalize(theta) - self.target) ** 2 + 0.1 * thetadot ** 2 + 0.001 * (u ** 2)
-        # costs = (angle_normalize(theta) - self.target) ** 2
+        # get reference from signal generator
+        self.ref = self.reference.step(self.t)
 
-        # costs = (theta - np.pi/4)**2
+        # get state from mass
+        z = self.mass.state.item(0)
+        zdot = self.mass.state.item(1)
+
+        # Work the magic by manipulating the cost function
+        # my current philosophy is to increase costs on position, 
+        # try to minimize velocity, and minimize input
+        # loss function
+        costs = (z - self.ref)**2 + 0.1 * zdot ** 2 + 0.001 * (u ** 2)
+
+        terminated = bool(
+            z < -self.z_max
+            or z > self.z_max
+            or zdot < -self.zdot_max
+            or zdot > self.zdot_max
+        )
 
         # Propagate dynamics in between plot samples
         self._run_dynamics(u)
@@ -90,72 +99,86 @@ class MassEnv(gym.Env):
         # Increment time
         self.t = self.t + self.dt
 
-        return self._get_obs(), -costs, False, {}
+        truncated = False
 
-    def reset(self):
-        # reset dynamic state
-        high = np.array([2*np.pi, 1])
-        low = np.array([0, -1])
-        self.state = self.np_random.uniform(low=low, high=high)
-        if RUN_CUSTOM_DYN is True:
-            self.arm.reset(self.state[0], self.state[1])
+        # if self.render_mode == 'human':
+        #     self.render()
+        return self._get_obs(), -costs, terminated, truncated, {}
 
+    def reset(
+            self,
+            *,
+            seed: Optional[int] = None,
+            options: Optional[dict] = None,
+    ):
+        # print('Resetting...')
+        # reset dynamic state 
+        super().reset(seed=seed)
+        low, high = utils.maybe_parse_reset_bounds(
+            options, -0.05, 0.05
+        )
+        # high = np.array([self.z_max, self.zdot_max])
+        # low = np.array([-self.z_max, -self.zdot_max])
+        # rand = np.random.rand(2,)*.1
+        # high = np.zeros((2,)) + rand
+        # low = np.zeros((2,)) - rand
+        self.state = self.np_random.uniform(low=low, high=high, size=(2,))
+        self.mass.reset(self.state)
         self.last_u = None
         self.t = P.t_start
-        return self._get_obs()
+        # if self.render_mode == 'human':
+        #     self.render()
+        return self._get_obs(), {}
 
     def _get_obs(self):
+        # print('Getting obs...')
         return np.array([
-            self.state.item(0),
-            self.state.item(1)
+            self.mass.state.item(0),
+            self.mass.state.item(1)
         ], dtype=np.float32)
 
-    def _run_dynamics(self, u):
-        if RUN_CUSTOM_DYN is False:
-            # print('Running pendulum dynamics')
-            # Dynamics from pendulum env
-            g = 10.0
-            l = 1.0
-            m = 1.0
-            
-            th, thdot = self.state
-            newthdot = thdot + (3 * g / (2 * l) * np.sin(th) + 3.0 / (m * l ** 2) * u) * self.dt
-            newthdot = np.clip(newthdot, -self.max_speed, self.max_speed)
-            newth = th + newthdot * self.dt
-            self._set_state(newth, newthdot)
+    def _run_dynamics(self, u: float):
+        # print('Running dynamics...')
+        # Dynamics from custom simulator
+        # u = np.ones((1,))*self.F_max
+        y = self.mass.update(u)
+        # self._set_state()
+        # self._set_state(self.mass.state.item(0), self.mass.state.item(1))
 
-        if RUN_CUSTOM_DYN is True:
-            # print('Running custom dynamics')
-            # Dynamics from custom simulator
-            y = self.arm.update(u)
-            self._set_state(self.arm.state.item(0), self.arm.state.item(1))
+    # def _set_state(self, z, zdot):
+    #     print('set_state...')
+    #     self.state = np.array([z, zdot])
 
-    def _set_state(self, theta, thetadot):
-        self.state = np.array([theta, thetadot])
+    def render(self):
+        # print('Rendering...')
+        if self.render_mode is None:
+            assert self.spec is not None
+            gym.logger.warn(
+                "You are calling render method without specifying any render mode. "
+                "You can specify the render_mode at initialization, "
+                f'e.g. gym.make("{self.spec.id}", render_mode="rgb_array")'
+            )
+            return
+        elif self.render_mode is 'human':
+            if self.animation is None:
+                self.animation = massAnimation()
+            else:
+                # self.animation.update(self.arm.state)
+                self.animation.update(self.mass.state)
 
-    def render(self, mode='human'):
-        if self.animation is None:
-            from gym_new_classic_envs.envs.arm.arm_resources.armAnimation import armAnimation
+                # the pause causes the figure to be displayed during the
+                # simulation
+                plt.pause(0.0001)
 
-            self.animation = armAnimation()
-        else:
-            # self.animation.update(self.arm.state)
-            self.animation.update(self.state)
-
-            # the pause causes the figure to be displayed during the
-            # simulation
-            plt.pause(0.0001)
-
-        if self.dataPlot is None:
-            from gym_new_classic_envs.envs.arm.arm_resources.armDataPlotter import dataPlotter
-            self.dataPlot = dataPlotter()
-        else:
-            self.dataPlot.update(self.t, self.ref, self.arm.state, self.last_u)
-            self.dataPlot.update(self.t, self.ref, self.arm.state, self.last_u)
-
-            # the pause causes the figure to be displayed during the
-            # simulation
-            plt.pause(0.0001)
+            if self.dataPlot is None:
+                self.dataPlot = dataPlotter()
+            else:
+                self.dataPlot.update(self.t, self.ref, self.mass.state, self.last_u)
+                # the pause causes the figure to be displayed during the
+                # simulation
+                plt.pause(0.0001)
+        else: 
+            raise NotImplementedError
 
     def close(self):
         if self.animation:
@@ -163,5 +186,5 @@ class MassEnv(gym.Env):
         if self.dataPlot:
             self.dataPlot = None
 
-def angle_normalize(x):
-    return ((x + np.pi) % (2 * np.pi)) - np.pi
+def angle_normalize(z):
+    return ((z + np.pi) % (2 * np.pi)) - np.pi

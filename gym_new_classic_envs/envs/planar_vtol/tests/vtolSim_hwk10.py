@@ -3,29 +3,27 @@ import sys
 
 import numpy as np
 
-# import os
-# import sys
-# sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # add parent directory
 import gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLParam as P
 from gym_new_classic_envs.utils.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLAnimation import VTOLAnimation
 from gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLDataPlotter import dataPlotter
 from gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLDynamics import VTOLDynamics
-from gym_new_classic_envs.envs.planar_vtol.vtol_controllers.PD.VTOLController import VTOLController
+from gym_new_classic_envs.envs.planar_vtol.vtol_controllers.PID.vtolController import vtolController
 
 # instantiate satellite, controller, and reference classes
-vtol = VTOLDynamics()
-referenceH = signalGenerator(amplitude=5.0, frequency=0.01, y_offset=5)
-referenceZ = signalGenerator(amplitude=2.5, frequency=.08, y_offset=3.0)
-disturbance = signalGenerator(amplitude=0.0)
-noise = signalGenerator(amplitude=1.0)
+vtol = VTOLDynamics(alpha=0.20)
+referenceH = signalGenerator(amplitude=5.0, frequency=0.05, y_offset=5)
+referenceZ = signalGenerator(amplitude=5.0, frequency=0.05, y_offset=5.0)
+disturbance = signalGenerator(amplitude=0.1)
+noise = signalGenerator(amplitude=0.1)
 
 # instantiate the simulation plots and animation
 dataPlot = dataPlotter()
 animation = VTOLAnimation()
-controller = VTOLController()
+controller = vtolController()
 
 t = P.t_start  # time starts at t_start
+y = vtol.h()
 while t < P.t_end:  # main simulation loop
 
     # Propagate dynamics in between plot samples
@@ -33,13 +31,13 @@ while t < P.t_end:  # main simulation loop
 
     # updates control and dynamics at faster simulation rate
     while t < t_next_plot:  
-        rH = referenceH.square(t)
-        rZ = referenceZ.square(t)
-        n = 0.0 #noise.random(t)
-        x = vtol.state + n
+        rH = referenceH.sin(t)
+        rZ = referenceZ.cos(t)
+        n = noise.random(t)
+        # x = vtol.state + n
         d = disturbance.step(t)
-        u = np.array(controller.update(rH,rZ,x))
-        y = vtol.update(u)  # Propagate the dynamics
+        u = np.array(controller.update(rH, rZ, y + n))
+        y = vtol.update(u + d)  # Propagate the dynamics
         t = t + P.Ts  # advance time by Ts
 
     # update animation and data plots

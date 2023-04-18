@@ -1,6 +1,4 @@
 import sys
-sys.path.append('..')
-import sys
 import os
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
@@ -15,7 +13,7 @@ from gym_new_classic_envs.envs.mass.mass_resources.massAnimation import massAnim
 from gym_new_classic_envs.envs.mass.mass_resources.massDataPlotter import dataPlotter
 
 # instantiate mass, controller, and reference classes
-mass = massDynamics(alpha=0.20)
+mass = massDynamics(alpha=0.0)
 controller = massController()
 reference = signalGenerator(amplitude=0.5, frequency=0.03, y_offset=0.5)
 disturbance = signalGenerator(amplitude=0.0)

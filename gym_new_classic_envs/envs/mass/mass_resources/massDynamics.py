@@ -23,6 +23,11 @@ class massDynamics:
         self.b = P.b * (1.+alpha*(2.*np.random.rand()-1.))
         self.force_limit = P.F_max
 
+    def reset(self, state):
+        # Reset the state of the system to the initial conditions
+        assert len(state) == 2
+        self.state = state.reshape((2, 1))
+
     def update(self, u):
         # This is the external method that takes the input u at time
         # t and returns the output y at time t.

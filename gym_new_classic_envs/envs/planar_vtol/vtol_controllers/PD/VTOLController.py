@@ -4,7 +4,7 @@ import sys
 
 sys.path.append('..')  # add parent directory
 import gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLParam as P
-import gym_new_classic_envs.envs.planar_vtol.vtol_controllers.VTOLParamHW8 as P8
+import gym_new_classic_envs.envs.planar_vtol.vtol_controllers.PD.VTOLParamHW8 as P8
 
 class VTOLController:
     def __init__(self):
