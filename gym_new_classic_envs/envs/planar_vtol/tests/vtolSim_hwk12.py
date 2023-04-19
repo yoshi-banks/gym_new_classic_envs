@@ -7,17 +7,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 import gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLParam as P
 from gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLDynamics import VTOLDynamics
-from gym_new_classic_envs.envs.planar_vtol.vtol_controllers.state_feedback.LQR.VTOLController import VTOLController
+from gym_new_classic_envs.envs.planar_vtol.vtol_controllers.state_feedback.LQR_integrator.VTOLController import VTOLController
 from gym_new_classic_envs.utils.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLAnimation import VTOLAnimation
 from gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLDataPlotter import dataPlotter
 
 # instantiate satellite, controller, and reference classes
-VTOL = VTOLDynamics(alpha=0.0)
+VTOL = VTOLDynamics(alpha=0.2)
 controller = VTOLController()
 referenceH = signalGenerator(amplitude=5.0, frequency=0.05, y_offset=5.0)
 referenceZ = signalGenerator(amplitude=5.0, frequency=0.05, y_offset=5.0)
-disturbance = signalGenerator(amplitude=0.5)
+disturbance = signalGenerator(amplitude=2.3)
 noise = signalGenerator(amplitude=0.1)
 
 # instantiate the simulation plots and animation

@@ -59,11 +59,11 @@ Q_lon = np.array([[10.0, 0.0],
                   [0.0, 1.0]])
 R_lon = np.array([[1.0]])
 
-Q_lat = np.array([[10.0, 0.0, 0.0, 0.0],
-                  [0.0, 10.0, 0.0, 0.0],
+Q_lat = np.array([[1.0, 0.0, 0.0, 0.0],
+                  [0.0, 1.0, 0.0, 0.0],
                   [0.0, 0.0, 1.0, 0.0],
                   [0.0, 0.0, 0.0, 1.0]])
-R_lat = np.array([[1.0]])
+R_lat = np.array([[10.]])
 
 # Compute the gains if the system is controllable
 if np.linalg.matrix_rank(cnt.ctrb(A_lon, B_lon)) != 2:
