@@ -3,7 +3,7 @@ import numpy as np
 import sys
 # sys.path.append('..')  # add parent directory
 import gym_new_classic_envs.envs.mass.mass_resources.massParam as P
-from gym_new_classic_envs.envs.mass.mass_resources.signalGenerator import signalGenerator
+from gym_new_classic_envs.utils.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.mass.mass_resources.massAnimation import massAnimation
 from gym_new_classic_envs.envs.mass.mass_resources.massDataPlotter import dataPlotter
 

@@ -12,7 +12,7 @@ from gym_new_classic_envs.utils.visualize import record_matplotlib_video
 
 target = 0.0
 env_id = "Mass-v0"
-env = gym.make(env_id, target=target)
+env = gym.make(env_id, render_mode='human')
 print(type(env))
 exit()
 env = TimeLimit(env, max_episode_steps=200)

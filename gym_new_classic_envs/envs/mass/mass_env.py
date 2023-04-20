@@ -20,10 +20,14 @@ class MassEnv(gym.Env):
     }
 
     def __init__(self, render_mode=None):
-        # print('Initializing...')
+        # print('Initializing Mass Env...')
 
         self.render_mode = render_mode
         self.ref = 0.0
+        self.count = 0
+        self.max_count = 5000
+        self.render_count = 0
+        self.render_max_count = 100
         
         # instantiate mass, controller, and reference classes
         self.mass = massDynamics(alpha=0.0)
@@ -64,9 +68,11 @@ class MassEnv(gym.Env):
 
     def step(self, action):
         # print('Stepping...')
-        assert self.action_space.contains(
-            action
-        ), f"{action!r}({type(action)}) invalid"
+        # print('state:', self.state, 'action:', action, 'count:', self.count)
+        # self.action_space.contains(np.array([18.0]).reshape(action.shape))
+        # assert self.action_space.contains(
+        #     action
+        # ), f"{action!r}({type(action)}) invalid"
 
         u = action
         # check that u is within bounds
@@ -74,7 +80,8 @@ class MassEnv(gym.Env):
         self.last_u = u
         
         # get reference from signal generator
-        self.ref = self.reference.step(self.t)
+        # self.ref = self.reference.step(self.t)
+        self.ref = 1.0
 
         # get state from mass
         z = self.mass.state.item(0)
@@ -84,7 +91,7 @@ class MassEnv(gym.Env):
         # my current philosophy is to increase costs on position, 
         # try to minimize velocity, and minimize input
         # loss function
-        costs = (z - self.ref)**2 + 0.1 * zdot ** 2 + 0.001 * (u ** 2)
+        costs = (z - self.ref)**2 + 0.01 * zdot ** 2 + 0.0001 * (u ** 2)
 
         terminated = bool(
             z < -self.z_max
@@ -99,7 +106,16 @@ class MassEnv(gym.Env):
         # Increment time
         self.t = self.t + self.dt
 
+        if terminated is True:
+            # print('Terminated')
+            pass
+
         truncated = False
+        if self.count > self.max_count:
+            truncated = True
+        else:
+            self.count += 1
+            truncated = False
 
         # if self.render_mode == 'human':
         #     self.render()
@@ -126,6 +142,8 @@ class MassEnv(gym.Env):
         self.mass.reset(self.state)
         self.last_u = None
         self.t = P.t_start
+        self.count = 0
+        self.render_count = 0
         # if self.render_mode == 'human':
         #     self.render()
         return self._get_obs(), {}
@@ -143,11 +161,11 @@ class MassEnv(gym.Env):
         # u = np.ones((1,))*self.F_max
         y = self.mass.update(u)
         # self._set_state()
-        # self._set_state(self.mass.state.item(0), self.mass.state.item(1))
+        self._set_state(self.mass.state.item(0), self.mass.state.item(1))
 
-    # def _set_state(self, z, zdot):
-    #     print('set_state...')
-    #     self.state = np.array([z, zdot])
+    def _set_state(self, z, zdot):
+        # print('set_state...')
+        self.state = np.array([z, zdot])
 
     def render(self):
         # print('Rendering...')
@@ -160,23 +178,27 @@ class MassEnv(gym.Env):
             )
             return
         elif self.render_mode is 'human':
-            if self.animation is None:
-                self.animation = massAnimation()
-            else:
-                # self.animation.update(self.arm.state)
-                self.animation.update(self.mass.state)
+            if self.render_count > self.render_max_count:
+                self.render_count = 0
+                if self.animation is None:
+                    self.animation = massAnimation()
+                else:
+                    # self.animation.update(self.arm.state)
+                    self.animation.update(self.mass.state)
 
-                # the pause causes the figure to be displayed during the
-                # simulation
-                plt.pause(0.0001)
+                    # the pause causes the figure to be displayed during the
+                    # simulation
+                    plt.pause(0.0001)
 
-            if self.dataPlot is None:
-                self.dataPlot = dataPlotter()
+                if self.dataPlot is None:
+                    self.dataPlot = dataPlotter()
+                else:
+                    self.dataPlot.update(self.t, self.ref, self.mass.state, self.last_u)
+                    # the pause causes the figure to be displayed during the
+                    # simulation
+                    plt.pause(0.0001)
             else:
-                self.dataPlot.update(self.t, self.ref, self.mass.state, self.last_u)
-                # the pause causes the figure to be displayed during the
-                # simulation
-                plt.pause(0.0001)
+                self.render_count += 1
         else: 
             raise NotImplementedError
 

@@ -30,6 +30,6 @@ beta = (2.0*sigma-Ts)/(2.0*sigma+Ts)  # dirty derivative gain
 F_max = 20.0  # Max force, N
 
 # params for ppo
-z_max = 20.0
-zdot_max = 10.0
+z_max = 2.0
+zdot_max = 5.0
 
