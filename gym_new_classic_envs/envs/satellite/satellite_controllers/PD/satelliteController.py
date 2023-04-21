@@ -1,4 +1,4 @@
-import gym_new_classic_envs.envs.satellite.satellite_controllers.satelliteParamHW8 as P
+import gym_new_classic_envs.envs.satellite.satellite_controllers.PD.satelliteParamHW8 as P
 
 class satelliteController:
     def __init__(self):

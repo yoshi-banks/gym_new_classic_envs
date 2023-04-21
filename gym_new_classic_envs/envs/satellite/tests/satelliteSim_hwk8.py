@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import gym_new_classic_envs.envs.satellite.satellite_resources.satelliteParam as P
 from gym_new_classic_envs.envs.satellite.satellite_resources.satelliteDynamics import satelliteDynamics
-from gym_new_classic_envs.envs.satellite.satellite_controllers.satelliteController import satelliteController
+from gym_new_classic_envs.envs.satellite.satellite_controllers.PD.satelliteController import satelliteController
 from gym_new_classic_envs.utils.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.satellite.satellite_resources.satelliteAnimation import satelliteAnimation
 from gym_new_classic_envs.envs.satellite.satellite_resources.satelliteDataPlotter import dataPlotter

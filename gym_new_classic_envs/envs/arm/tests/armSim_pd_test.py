@@ -3,7 +3,7 @@ import numpy as np
 
 import gym_new_classic_envs.envs.arm.arm_resources.armParam as P
 from gym_new_classic_envs.envs.arm.arm_resources.armDynamics import armDynamics
-from gym_new_classic_envs.envs.arm.arm_controllers.armController import armController
+from gym_new_classic_envs.envs.arm.arm_controllers.PD.armController import armController
 from gym_new_classic_envs.utils.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.arm.arm_resources.armAnimation import armAnimation
 from gym_new_classic_envs.envs.arm.arm_resources.armDataPlotter import dataPlotter
