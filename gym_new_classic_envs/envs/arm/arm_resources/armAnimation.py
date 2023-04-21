@@ -40,8 +40,8 @@ class armAnimation:
         # Process inputs to function
         theta = u[0]   # angle of arm, rads
 
-        X = [0, self.length*np.cos(theta)]  # X data points
-        Y = [0, self.length*np.sin(theta)]  # Y data points
+        X = [0, self.length*np.cos(theta).item(0)]  # X data points
+        Y = [0, self.length*np.sin(theta).item(0)]  # Y data points
 
         # When the class is initialized, a line object will be
         # created and added to the axes. After initialization, the

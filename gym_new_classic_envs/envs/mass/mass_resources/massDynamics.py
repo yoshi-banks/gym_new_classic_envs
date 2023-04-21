@@ -49,7 +49,6 @@ class massDynamics:
 
         C = -self.k * z + force - self.b * zdot
 
-
         #tmp = np.linalg.inv(M) @ C
         zddot = C/M
 

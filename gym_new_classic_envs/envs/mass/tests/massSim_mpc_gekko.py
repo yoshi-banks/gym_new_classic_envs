@@ -4,6 +4,7 @@ from gekko import GEKKO
 
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 import gym_new_classic_envs.envs.mass.mass_resources.massParam as P
 from gym_new_classic_envs.envs.mass.mass_resources.massDynamics import massDynamics
 from gym_new_classic_envs.envs.mass.mass_controllers.PD.massController import massController
@@ -77,9 +78,16 @@ dataPlot = dataPlotter()
 animation = massAnimation()
 t = P.t_start # time start at t_start
 y = massSys.h() # output of system at start of simulation
-while t < P.t_end: # main simulation loop
+
+time_in_control_loop = 0
+count_in_ref = 0
+num_secs_in_ref = 2
+done = False
+
+while t < P.t_end and not done: # main simulation loop
     # Propagate dynamics in between plot samples
     t_next_plot = t + P.t_plot
+    start_time = time.time()
     ################
     # MPC
     ################
@@ -96,6 +104,8 @@ while t < P.t_end: # main simulation loop
     # retrieve new input values
     u = F.NEWVAL
     ################
+    end_time = time.time()
+    time_in_control_loop += end_time - start_time
     while t < t_next_plot: # updates control and dynamics at faster simulation rate
         # r = reference.square(t) # reference input
         d = disturbance.step(t) # input disturbance
@@ -103,6 +113,15 @@ while t < P.t_end: # main simulation loop
         # x = mass.state
         # u = controller.update(r, x) # update controller
         y = massSys.update(u + d) # propagate system
+        # if abs(y-r) < abs(0.1*r):
+        #     # print('within 10% of reference')
+        #     count_in_ref += 1
+        #     if count_in_ref > (num_secs_in_ref/P.Ts):
+        #         print('within 10% of reference for {} iterations'.format(num_secs_in_ref))
+        #         print(t)
+        #         done = True
+        # else:
+        #     count_in_ref = 0
         t = t + P.Ts # advance time by Ts
     # update animation and data plots
     animation.update(massSys.state)
@@ -115,6 +134,7 @@ animation = massAnimation()
 
 t = P.t_start # time start at t_start
 # Keeps the program from closing until the user presses a button
+print('time in control loop: ', time_in_control_loop)
 print('Press key to close')
 plt.waitforbuttonpress()
 plt.close()

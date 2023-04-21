@@ -49,8 +49,12 @@ class MassEnv(gym.Env):
         self.dt = P.Ts
 
         # Initialize action space
+        # self.action_space = spaces.Box(
+        #     low=-self.F_max, high=self.F_max, shape=(1,), dtype=np.float32
+        # )
+        # BEST PRACTICE: normalize action space to be between -1 and 1
         self.action_space = spaces.Box(
-            low=-self.F_max, high=self.F_max, shape=(1,), dtype=np.float32
+            low=-1, high=1, shape=(1,), dtype=np.float32
         )
 
         high_observation = np.array([self.z_max, self.z_max], dtype=np.float32)
@@ -73,6 +77,9 @@ class MassEnv(gym.Env):
         # assert self.action_space.contains(
         #     action
         # ), f"{action!r}({type(action)}) invalid"
+
+        # put normalized action back within bounds
+        u = action * self.F_max
 
         u = action
         # check that u is within bounds
