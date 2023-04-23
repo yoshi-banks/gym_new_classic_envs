@@ -4,7 +4,7 @@ import sys
 
 sys.path.append('..')  # add parent directory
 import gym_new_classic_envs.envs.ballbeam.ballbeam_resources.ballbeamParam as P
-import gym_new_classic_envs.envs.ballbeam.ballbeam_controllers.ballbeamParamHW8 as P8
+import gym_new_classic_envs.envs.ballbeam.ballbeam_controllers.PD.ballbeamParamHW8 as P8
 # from PDControl import PDControl
 
 class ballbeamController:

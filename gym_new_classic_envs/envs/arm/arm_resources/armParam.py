@@ -10,7 +10,7 @@ import numpy as np
 m = 1.0
 ell = 1.0
 g = 9.8
-b = 0.0
+b = 0.4
 
 # parameters for animation
 length = 1    # length of arm in animation
@@ -23,9 +23,10 @@ thetadot0 = 0.0         # ,rads/s
 # Simulation Parameters
 t_start = 0.0  # Start time of simulation
 t_end = 50.0  # End time of simulation
-Ts = 0.005  # sample time for simulation
+Ts = 0.001  # sample time for simulation
+t_plot = 0.030
 # t_plot = 0.066  # the plotting and animation is updated at this rate
-t_plot = 0.2
+# t_plot = 0.2
 
 # dirty derivative parameters
 sigma = 0.05  # cutoff freq for dirty derivative

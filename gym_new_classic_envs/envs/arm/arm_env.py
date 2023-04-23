@@ -84,7 +84,7 @@ class ArmEnv(gym.Env):
         theta = self.arm.state.item(0)
         thetadot = self.arm.state.item(1)
         # costs = (theta - self.target)**2 + 0.1 * thetadot ** 2 + 0.001 * (u ** 2)
-        costs = (angle_normalize(theta) - self.target) ** 2 + 0.1 * thetadot ** 2 + 0.001 * (u ** 2)
+        costs = (angle_normalize(theta) - self.target) ** 2 + 0.01 * thetadot ** 2 + 0.0001 * (u ** 2)
         # costs = (angle_normalize(theta) - self.target) ** 2
         # costs = (theta - np.pi/4)**2
 

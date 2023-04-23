@@ -1,11 +1,7 @@
 # satellite Parameter File
 import numpy as np
 import control as cnt
-import sys
-sys.path.append('..')  # add parent directory
-import os
-import sys
-sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # add parent directory
+
 import gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLParam as P
 
 # import variables from satelliteParam
@@ -80,7 +76,7 @@ B1_lat = np.array([[0.0],
 # Q_lon = np.array([[100.0, 0.0, 0.0],
 #                   [0.0, 1.0, 0.0],
 #                    [0.0, 0.0, .10]])
-Q_lon = np.array([[1.0, 0.0, 0.0],
+Q_lon = np.array([[.0001, 0.0, 0.0],
                   [0.0, 1.0, 0.0],
                   [0.0, 0.0, 1.0]])
 R_lon = np.array([[1.0]])
@@ -90,7 +86,7 @@ Q_lat = np.array([[1.0, 0.0, 0.0, 0.0, 0.0],
                   [0.0, 0.0, 1.0, 0.0, 0.0],
                   [0.0, 0.0, 0.0, 1.0, 0.0],
                   [0.0, 0.0, 0.0, 0.0, 1.0]])
-R_lat = np.array([[10.]])
+R_lat = np.array([[10]])
 
 # Compute the gains if the system is controllable
 if np.linalg.matrix_rank(cnt.ctrb(A_lon, B_lon)) != 2:

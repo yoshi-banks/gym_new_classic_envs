@@ -7,15 +7,15 @@ from gekko import GEKKO
 
 import gym_new_classic_envs.envs.arm.arm_resources.armParam as P
 from gym_new_classic_envs.envs.arm.arm_resources.armDynamics import armDynamics
-from gym_new_classic_envs.envs.arm.arm_controllers.armController import armController
+# from gym_new_classic_envs.envs.arm.arm_controllers.armController import armController
 from gym_new_classic_envs.utils.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.arm.arm_resources.armAnimation import armAnimation
 from gym_new_classic_envs.envs.arm.arm_resources.armDataPlotter import dataPlotter
 
 # instantiate arm, controller, and reference classes
 arm = armDynamics()
-controller = armController()
-reference = signalGenerator(amplitude=30*np.pi/180.0, frequency=0.05, y_offset=-30*np.pi/180.0)
+# controller = armController()
+reference = signalGenerator(amplitude=30*np.pi/180.0, frequency=0.05)
 disturbance = signalGenerator(amplitude=0.0)
 
 ############################################
@@ -29,8 +29,7 @@ t = np.linspace(0,1,N)
 # m.time = t
 # m.time = [0,0.02,0.04,0.06,0.08,0.1,0.12,0.15,0.2]
 # m.time = np.arange(0,5,0.2)
-m.time = np.arange(0,1,0.02)
-print(m.time)
+m.time = np.arange(0,0.6,0.01)
 
 # Final Time
 final = np.zeros_like(m.time)
@@ -46,17 +45,19 @@ g = m.Param(value=P.g)
 b = m.Param(value=P.b)
 
 # MV
-print('tau_max', P.tau_max)
 tau = m.MV(value=0.0,lb=-P.tau_max,ub=P.tau_max)
 tau.STATUS = 1
-# tau.DCOST = 0.01
+tau.DCOST = 0.1
 
 # CV
 theta = m.CV(value=P.theta0)
 theta.STATUS = 1
 theta.FSTATUS = 1
 theta.TR_INIT = 1
-# theta.COST = -18
+# theta.TAU = 1.0
+# theta.WSP = 120
+# theta.WSP = 200
+
 thetadot = m.CV(value=P.thetadot0,lb=-P.thetadot_max,ub=P.thetadot_max)
 thetadot.STATUS = 1
 thetadot.FSTATUS = 1
@@ -67,9 +68,10 @@ thetadot.TR_INIT = 1
 # x.TR_INIT = 1
 
 # Dynamic Relationships
-m.Equations([theta.dt() == thetadot])
-m.Equations([thetadot.dt() == (3.0/mass/ell**2) * (tau - b*thetadot \
-                                                - mass*g*ell/2.0*m.cos(theta))])
+m.Equation(theta.dt() == thetadot)
+m.Equation(thetadot.dt() == (3.0/mass/ell**2) * (tau - b*thetadot \
+                                                 - mass*g*ell/2.0))
+                                                # - mass*g*ell/2.0*m.cos(theta)))
 
 # Global Options
 m.options.CV_TYPE = 2
@@ -100,6 +102,11 @@ while t < P.t_end:  # main simulation loop
     thetadot.MEAS = x[1,0] + n
     m.solve(disp=False)
     theta.SP = r
+    theta.SPHI = r + 0.1
+    theta.SPLO = r - 0.1
+    # thetadot.SP = 0.0
+    # thetadot.SPHI = 0.0 + 0.1
+    # thetadot.SPLO = 0.0 - 0.1
     # print('SP', theta.SP)
     # retrieve new input values
     u = tau.NEWVAL

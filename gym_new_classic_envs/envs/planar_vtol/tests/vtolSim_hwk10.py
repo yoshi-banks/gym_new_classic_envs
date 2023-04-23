@@ -11,11 +11,11 @@ from gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLDynamics import VT
 from gym_new_classic_envs.envs.planar_vtol.vtol_controllers.PID.vtolController import vtolController
 
 # instantiate satellite, controller, and reference classes
-vtol = VTOLDynamics(alpha=0.20)
+vtol = VTOLDynamics(alpha=0.0)
 referenceH = signalGenerator(amplitude=5.0, frequency=0.05, y_offset=5)
 referenceZ = signalGenerator(amplitude=5.0, frequency=0.05, y_offset=5.0)
-disturbance = signalGenerator(amplitude=0.1)
-noise = signalGenerator(amplitude=0.1)
+disturbance = signalGenerator(amplitude=0.)
+noise = signalGenerator(amplitude=0.)
 
 # instantiate the simulation plots and animation
 dataPlot = dataPlotter()
@@ -31,8 +31,8 @@ while t < P.t_end:  # main simulation loop
 
     # updates control and dynamics at faster simulation rate
     while t < t_next_plot:  
-        rH = referenceH.sin(t)
-        rZ = referenceZ.cos(t)
+        rH = referenceH.square(t)
+        rZ = referenceZ.square(t)
         n = noise.random(t)
         # x = vtol.state + n
         d = disturbance.step(t)

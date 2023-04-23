@@ -17,12 +17,20 @@ from stable_baselines3 import PPO
 #%% Create env
 env = gym.make('Mass-v0')
 # env = gym.make('CartPole-v1')
-model = PPO('MlpPolicy', env, verbose=1)
+model = PPO(
+    'MlpPolicy',
+     env, 
+     gamma=0.999,
+     use_sde=True,
+     sde_sample_freq=4,
+     learning_rate=1e-3,
+     verbose=1
+)
 
 #%% Load model
 env = gym.make('Mass-v0')
 save_dir = "C:\\tmp\\gym\\"
-model = PPO.load(save_dir + "ppo_mass_testing2", env=env)
+model = PPO.load(save_dir + "ppo_mass_testing-2_1", env=env)
 
 #%% Evaluate model
 mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=100)

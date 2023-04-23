@@ -85,6 +85,9 @@ class MassEnv(gym.Env):
         # check that u is within bounds
         u = np.clip(u, -self.F_max, self.F_max).item(0)
         self.last_u = u
+
+        # Propagate dynamics in between plot samples
+        self._run_dynamics(u)
         
         # get reference from signal generator
         # self.ref = self.reference.step(self.t)
@@ -98,7 +101,7 @@ class MassEnv(gym.Env):
         # my current philosophy is to increase costs on position, 
         # try to minimize velocity, and minimize input
         # loss function
-        costs = (z - self.ref)**2 + 0.01 * zdot ** 2 + 0.0001 * (u ** 2)
+        costs = 10*(z - self.ref)**2 + 0.01 * zdot ** 2 + 0.0001 * (u ** 2)
 
         terminated = bool(
             z < -self.z_max
@@ -106,9 +109,6 @@ class MassEnv(gym.Env):
             or zdot < -self.zdot_max
             or zdot > self.zdot_max
         )
-
-        # Propagate dynamics in between plot samples
-        self._run_dynamics(u)
 
         # Increment time
         self.t = self.t + self.dt

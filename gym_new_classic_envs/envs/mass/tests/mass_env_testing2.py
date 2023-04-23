@@ -23,7 +23,7 @@ def evaluate(model, num_episodes=100):
     """
 
 save_dir = "C:\\tmp\\gym\\"
-model = PPO.load(save_dir + "ppo_mass_testing2")
+model = PPO.load(save_dir + "ppo_mass_testing-2_1")
 
 env = gym.make('Mass-v0', render_mode='human')
 obs = env.reset()[0]

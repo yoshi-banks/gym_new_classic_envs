@@ -1,8 +1,5 @@
 import sys
-sys.path.append('..')  # add parent directory
-import os
-import sys
-sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # add parent directory
+
 import matplotlib.pyplot as plt
 import numpy as np
 import gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLParam as P
@@ -13,12 +10,12 @@ from gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLAnimation import V
 from gym_new_classic_envs.envs.planar_vtol.vtol_resources.VTOLDataPlotter import dataPlotter
 
 # instantiate satellite, controller, and reference classes
-VTOL = VTOLDynamics(alpha=0.2)
+VTOL = VTOLDynamics(alpha=0.)
 controller = VTOLController()
 referenceH = signalGenerator(amplitude=5.0, frequency=0.05, y_offset=5.0)
 referenceZ = signalGenerator(amplitude=5.0, frequency=0.05, y_offset=5.0)
-disturbance = signalGenerator(amplitude=2.3)
-noise = signalGenerator(amplitude=0.1)
+disturbance = signalGenerator(amplitude=0.0)
+noise = signalGenerator(amplitude=0.)
 
 # instantiate the simulation plots and animation
 dataPlot = dataPlotter()

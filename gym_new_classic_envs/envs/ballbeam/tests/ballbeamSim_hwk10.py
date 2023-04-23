@@ -4,13 +4,14 @@ from gym_new_classic_envs.utils.signalGenerator import signalGenerator
 from gym_new_classic_envs.envs.ballbeam.ballbeam_resources.ballbeamAnimation import ballbeamAnimation
 from gym_new_classic_envs.envs.ballbeam.ballbeam_resources.ballbeamDataPlotter import dataPlotter
 from gym_new_classic_envs.envs.ballbeam.ballbeam_resources.ballbeamDynamics import ballbeamDynamics
-from gym_new_classic_envs.envs.ballbeam.ballbeam_controllers.PD.ballbeamController import ballbeamController
+from gym_new_classic_envs.envs.ballbeam.ballbeam_controllers.PID.ballbeamController import ballbeamController
 
 # instantiate satellite, controller, and reference classes
-ballbeam = ballbeamDynamics()
+ballbeam = ballbeamDynamics(alpha=0.20)
 controller = ballbeamController()
-reference = signalGenerator(amplitude=0.05, frequency=0.05, y_offset=0.25)
-disturbance = signalGenerator(amplitude=0.0, frequency=0.0)
+reference = signalGenerator(amplitude=0.125, frequency=0.02, y_offset=0.0)
+disturbance = signalGenerator(amplitude=0.25, frequency=0.0)
+noise = signalGenerator(amplitude=0.01)
 
 # instantiate the simulation plots and animation
 dataPlot = dataPlotter()
@@ -26,10 +27,11 @@ while t < P.t_end:  # main simulation loop
     # updates control and dynamics at faster simulation rate
     while t < t_next_plot:
         r = reference.step(t)
-        d = disturbance.step(t)
+        d = 0.0 #disturbance.step(t)
         n = 0.0 #noise.random(t)
-        x = ballbeam.state
-        u = controller.update(r, x)
+        # x = ballbeam.state
+        # u = controller.update(r, x)
+        u = controller.update(r, y + n)
         y = ballbeam.update(u + d)  # Propagate the dynamics
         t = t + P.Ts  # advance time by Ts
 
